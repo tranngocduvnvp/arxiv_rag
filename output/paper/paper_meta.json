@@ -1,0 +1,681 @@
+{
+  "table_of_contents": [
+    {
+      "title": "Stability-Driven Quantization-Aware Training for\nLow-Bit Models",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          64.546875,
+          53.09869384765625
+        ],
+        [
+          546.86181640625,
+          53.09869384765625
+        ],
+        [
+          546.86181640625,
+          104.90399169921875
+        ],
+        [
+          64.546875,
+          104.90399169921875
+        ]
+      ]
+    },
+    {
+      "title": "I. INTRODUCTION",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          134.173828125,
+          407.02252197265625
+        ],
+        [
+          213.37181091308594,
+          407.02252197265625
+        ],
+        [
+          213.37181091308594,
+          416.9851379394531
+        ],
+        [
+          134.173828125,
+          416.9851379394531
+        ]
+      ]
+    },
+    {
+      "title": "II. RELATED WORK",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          394.154296875,
+          577.37109375
+        ],
+        [
+          480.814453125,
+          577.37109375
+        ],
+        [
+          480.814453125,
+          589.1929473876953
+        ],
+        [
+          394.154296875,
+          589.1929473876953
+        ]
+      ]
+    },
+    {
+      "title": "A. Quantization Aware Training",
+      "heading_level": null,
+      "page_id": 0,
+      "polygon": [
+        [
+          309.5859375,
+          595.93359375
+        ],
+        [
+          443.822998046875,
+          595.93359375
+        ],
+        [
+          443.822998046875,
+          606.5294799804688
+        ],
+        [
+          309.5859375,
+          606.5294799804688
+        ]
+      ]
+    },
+    {
+      "title": "B. Oscillations in Quantization-Aware training",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          47.8125,
+          130.7109375
+        ],
+        [
+          241.5,
+          130.7109375
+        ],
+        [
+          241.5,
+          139.9921875
+        ],
+        [
+          47.8125,
+          139.9921875
+        ]
+      ]
+    },
+    {
+      "title": "III. ANALYSIS OF OSCILLATION IN QUANTIZATION-AWARE TRAINING",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          98.25,
+          333.3515625
+        ],
+        [
+          249.0,
+          333.3515625
+        ],
+        [
+          249.0,
+          354.75
+        ],
+        [
+          98.25,
+          354.75
+        ]
+      ]
+    },
+    {
+      "title": "A. Quantization Aware Training Analysis",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          46.5,
+          394.5
+        ],
+        [
+          218.7421875,
+          394.5
+        ],
+        [
+          218.7421875,
+          403.5
+        ],
+        [
+          46.5,
+          403.5
+        ]
+      ]
+    },
+    {
+      "title": "B. Observing Oscillations in QAT",
+      "heading_level": null,
+      "page_id": 1,
+      "polygon": [
+        [
+          308.091796875,
+          561.0
+        ],
+        [
+          453.0,
+          561.0
+        ],
+        [
+          453.0,
+          570.75
+        ],
+        [
+          308.091796875,
+          570.75
+        ]
+      ]
+    },
+    {
+      "title": "IV. METHODOLOGY",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          129.69140625,
+          557.25
+        ],
+        [
+          218.25,
+          557.25
+        ],
+        [
+          218.25,
+          567.31640625
+        ],
+        [
+          129.69140625,
+          567.31640625
+        ]
+      ]
+    },
+    {
+      "title": "A. Gradient Scaling Distance-aware",
+      "heading_level": null,
+      "page_id": 2,
+      "polygon": [
+        [
+          46.5,
+          632.25
+        ],
+        [
+          198.75,
+          632.25
+        ],
+        [
+          198.75,
+          642.0
+        ],
+        [
+          46.5,
+          642.0
+        ]
+      ]
+    },
+    {
+      "title": "B. EMA Aware distance for Updating weight",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          47.25,
+          259.5
+        ],
+        [
+          234.75,
+          259.5
+        ],
+        [
+          234.75,
+          269.25
+        ],
+        [
+          47.25,
+          269.25
+        ]
+      ]
+    },
+    {
+      "title": "C. Adaptive Finetuning Weight",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          48.0,
+          620.68359375
+        ],
+        [
+          176.25,
+          620.68359375
+        ],
+        [
+          176.25,
+          630.0
+        ],
+        [
+          48.0,
+          630.0
+        ]
+      ]
+    },
+    {
+      "title": "V. EXPERIMENT",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          401.25,
+          336.0
+        ],
+        [
+          473.25,
+          336.0
+        ],
+        [
+          473.25,
+          345.0
+        ],
+        [
+          401.25,
+          345.0
+        ]
+      ]
+    },
+    {
+      "title": "A. Experiment result",
+      "heading_level": null,
+      "page_id": 3,
+      "polygon": [
+        [
+          309.75,
+          609.75
+        ],
+        [
+          397.5,
+          609.75
+        ],
+        [
+          397.5,
+          619.91015625
+        ],
+        [
+          309.75,
+          619.91015625
+        ]
+      ]
+    },
+    {
+      "title": "B. Ablation Study",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          310.5,
+          444.0
+        ],
+        [
+          386.68359375,
+          444.0
+        ],
+        [
+          386.68359375,
+          453.0
+        ],
+        [
+          310.5,
+          453.0
+        ]
+      ]
+    },
+    {
+      "title": "VI. CONCLUSION",
+      "heading_level": null,
+      "page_id": 4,
+      "polygon": [
+        [
+          397.5,
+          620.68359375
+        ],
+        [
+          477.0,
+          620.68359375
+        ],
+        [
+          477.0,
+          630.75
+        ],
+        [
+          397.5,
+          630.75
+        ]
+      ]
+    },
+    {
+      "title": "ACKNOWLEDGMENT",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          129.69140625,
+          181.31951904296875
+        ],
+        [
+          217.9445037841797,
+          181.31951904296875
+        ],
+        [
+          217.9445037841797,
+          191.2821044921875
+        ],
+        [
+          129.69140625,
+          191.2821044921875
+        ]
+      ]
+    },
+    {
+      "title": "REFERENCES",
+      "heading_level": null,
+      "page_id": 5,
+      "polygon": [
+        [
+          145.828125,
+          220.4296875
+        ],
+        [
+          202.39846801757812,
+          220.4296875
+        ],
+        [
+          202.39846801757812,
+          231.3460693359375
+        ],
+        [
+          145.828125,
+          231.3460693359375
+        ]
+      ]
+    }
+  ],
+  "page_stats": [
+    {
+      "page_id": 0,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          213
+        ],
+        [
+          "Line",
+          104
+        ],
+        [
+          "Text",
+          12
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "ListItem",
+          3
+        ],
+        [
+          "ListGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 1,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          114
+        ],
+        [
+          "Span",
+          75
+        ],
+        [
+          "Text",
+          14
+        ],
+        [
+          "Equation",
+          8
+        ],
+        [
+          "SectionHeader",
+          4
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 2,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          82
+        ],
+        [
+          "Span",
+          57
+        ],
+        [
+          "TableCell",
+          12
+        ],
+        [
+          "Text",
+          8
+        ],
+        [
+          "Equation",
+          4
+        ],
+        [
+          "Caption",
+          3
+        ],
+        [
+          "Figure",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "FigureGroup",
+          2
+        ],
+        [
+          "Table",
+          1
+        ],
+        [
+          "TableGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 3,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "Line",
+          110
+        ],
+        [
+          "Span",
+          62
+        ],
+        [
+          "Text",
+          12
+        ],
+        [
+          "Equation",
+          5
+        ],
+        [
+          "SectionHeader",
+          4
+        ],
+        [
+          "Figure",
+          1
+        ],
+        [
+          "Caption",
+          1
+        ],
+        [
+          "FigureGroup",
+          1
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 4,
+      "text_extraction_method": "surya",
+      "block_counts": [
+        [
+          "TableCell",
+          320
+        ],
+        [
+          "Line",
+          69
+        ],
+        [
+          "Span",
+          14
+        ],
+        [
+          "Text",
+          6
+        ],
+        [
+          "Caption",
+          4
+        ],
+        [
+          "Table",
+          4
+        ],
+        [
+          "TableGroup",
+          3
+        ],
+        [
+          "SectionHeader",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    },
+    {
+      "page_id": 5,
+      "text_extraction_method": "pdftext",
+      "block_counts": [
+        [
+          "Span",
+          395
+        ],
+        [
+          "Line",
+          120
+        ],
+        [
+          "ListItem",
+          33
+        ],
+        [
+          "Text",
+          2
+        ],
+        [
+          "SectionHeader",
+          2
+        ],
+        [
+          "ListGroup",
+          2
+        ]
+      ],
+      "block_metadata": {
+        "llm_request_count": 0,
+        "llm_error_count": 0,
+        "llm_tokens_used": 0,
+        "previous_text": "",
+        "previous_type": "",
+        "previous_order": 0
+      }
+    }
+  ],
+  "debug_data_path": "debug_data/paper"
+}

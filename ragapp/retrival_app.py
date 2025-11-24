@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 
 # --- Khởi tạo ---
 EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"   
-PERSIST_DIR = "/home/dutn/Documents/ARXIVRAG/RAG_VT/output"
+PERSIST_DIR = "/data/AIRACE/arxiv_rag/output"
 CHROMA_COLLECTION_NAME = "arxiv_chunk"
 GEMINI_API_KEY = "AIzaSyCwDT5DABNsSAJCdGUyjktUv3oo-C-FgHk"
 

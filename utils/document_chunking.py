@@ -21,9 +21,9 @@ import warnings
 warnings.filterwarnings("ignore")
 
 EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"   
-PERSIST_DIR = "/home/dutn/Documents/ARXIVRAG/RAG_VT/output"
+PERSIST_DIR = "/data/AIRACE/arxiv_rag/output"
 CHROMA_COLLECTION_NAME = "arxiv_chunk"
-GEMINI_API_KEY = "AIzaSyCwDT5DABNsSAJCdGUyjktUv3oo-C-FgHk"
+GEMINI_API_KEY = "AIzaSyBybSMJbI0oaKQLPUsYK1CBflIfzRwT0HU"
 
 
 class MarkdownPasser(MarkdownChef):
@@ -335,26 +335,26 @@ class DocumentProcesser:
 
 
 if __name__ == "__main__":
-    processor = DocumentProcesser(path = "/home/dutn/Documents/ARXIVRAG/paper/content/paper/paper.md",\
+    processor = DocumentProcesser(path = "/data/AIRACE/arxiv_rag/output/paper/paper.md",\
                                    detect_language=True, split_table=False, \
                                     chunk_size=512, table_size=2048, use_summarize_code=True,\
                                      use_summarize_table=True, chat_with_llm=chat_with_llm)
    
     chunk = processor.process()
     data_frame = {"page_content":[], "metadata":[]}
-    # for i, c in enumerate(chunk):
-    #     print(f"================== chunk: {i} --> chunk size: {len(c.page_content)} ==================")
-    #     print(c)
-    #     data_frame["page_content"].append(c.page_content)
-    #     data_frame["metadata"].append(c.metadata)
+    for i, c in enumerate(chunk):
+        # print(f"================== chunk: {i} --> chunk size: {len(c.page_content)} ==================")
+        # print(c)
+        data_frame["page_content"].append(c.page_content)
+        data_frame["metadata"].append(c.metadata)
 
     df = pd.DataFrame(data_frame)
-    df.to_csv("/output/save_chunk.csv")
+    df.to_csv("/data/AIRACE/arxiv_rag/output/save_chunk.csv")
 
 
 
     # print("\n\n --------------------------- \n\n")
-    vectordb = processor.build_and_persist_vectorstore(path_csv="/home/dutn/Documents/ARXIVRAG/RAG_VT/output/save_chunk.csv")
+    vectordb = processor.build_and_persist_vectorstore(path_csv="/data/AIRACE/arxiv_rag/output/save_chunk.csv")
     q = "what is the mAP of Yolov8 model?"
     hits = processor.semantic_search(vectordb, q, k=20)
     for i, doc in enumerate(hits):

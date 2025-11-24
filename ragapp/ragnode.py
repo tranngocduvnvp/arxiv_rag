@@ -1,6 +1,5 @@
 from langchain.tools import tool
 from pydantic import BaseModel, Field
-from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -9,15 +8,22 @@ from typing import List
 import os
 from retrival_app import fuse_retrival_rerank, vectorstore, bm25_retriever
 from langchain.schema import Document
+import pprint
 from langgraph.graph import END, StateGraph
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
 
+load_dotenv()
+
+
+# os.environ["TAVILY_API_KEY"] = "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"
 # define llm
 llm = ChatOpenAI(
-    api_key="AIzaSyCwDT5DA",
+    api_key=os.getenv("GEMINI_API_KEY"),
     base_url="https://generativelanguage.googleapis.com/v1beta/openai",
-    model="gemini-2.0-flash"
+    model="gemini-2.5-flash-lite"
 )
-web_search_tool = TavilySearchResults()
+web_search_tool = TavilySearchResults(max_results=2)
 
 # define llm_chain
 preamble = """You are an assistant for question-answering tasks. Answer the question based upon your knowledge. Use three sentences maximum and keep the answer concise."""
@@ -42,10 +48,10 @@ Follow these rules:
 5. If the user asks multiple questions, answer only those that can be supported by the context; otherwise reply "I don't know."
 
 Context:
-{{context}}
+{context}
 
 User question:
-{{question}}
+{question}
 """
 
 rag_prompt = PromptTemplate(
@@ -60,50 +66,70 @@ rag_chain = (
 
 # define tool
 class Generation(BaseModel):
-    '''
-    Taọ ra câu trả lời từ các tri thức có sẵn của bạn
-    '''
-    query: str = Field(description="Câu truy vấn của người dùng")
+    """
+    Generate an answer using the model's internal knowledge.
+    """
+    query: str = Field(description="The user's query to be answered using internal knowledge.")
+
 
 class Retrieval(BaseModel):
-    '''
-    Truy truy vấn từ trong database để lấy các thông tin của tài liệu, từ đó cung cấp context cho LLM
-    '''
-    query: str = Field(description="Câu truy vấn dùng để seach trong vectorstore")
+    """
+    Retrieve relevant information of paper from the database (vector store) to provide context for the LLM.
+    """
+    query: str = Field(description="The search query used to retrieve documents from the vector store.")
+
 
 # define output schema
 class GradeRespone(BaseModel):
-    '''
-    Điểm số Binary dùng để đánh giá câu trả lời và truy vấn có liên quan với nhau hay không
-    '''
-    binary_score: str = Field(description="Respone are relevant to the question, 'yes' or 'no'")
+    """
+    A binary score used to evaluate whether the provided answer is relevant to the user question.
+    """
+    binary_score: str = Field(description="Indicates whether the response is relevant to the question: 'yes' or 'no'.")
+
 
 # define websearch
 class WebSearch(BaseModel):
-    '''
-    Seach web để tìm nội dung của câu trả lời nếu trong câu hỏi người dùng có nói đến việc search tài liệu trên web
-    '''
-    query: str = Field(description="Câu truy vấn để tìm thông tin trên web")
+    """
+    Search the web to find information needed to answer the user question, especially if the question explicitly requests web-based information.
+    """
+    query: str = Field(description="The search query used to find information on the web.")
+
 
 #================== binding tool router =========================:
 router_prompt = ChatPromptTemplate.from_messages(
     [
-        ("system","Bạn là một chuyên gia router có chức năng điều hướng câu hỏi. Nếu câu hỏi mang tính chất chung thì điều hướng đến tool Generation, Nếu câu hỏi liên quan đến kỹ thuật AI hoặc paper thì điều hướng đến tool RetrivalARXIV"),
-        ("Human", "{question}")
+        (
+            "system",
+            "You are an expert routing assistant responsible for deciding how a user question should be handled.\n"
+            "- If the question is broad, general, or requires up-to-date external information, route it to the `WebSearch` tool.\n"
+            "- If the question is technical, related to AI, research papers, or requires knowledge from Database, route it to the `Retrieval` tool.\n"
+            "- For all other cases, answer the question directly using your internal knowledge without calling any tool."
+        ),
+        ("human", "{question}")
     ]
 )
+
 llm_router = llm.bind_tools(tools=[WebSearch, Retrieval])
 question_router = router_prompt | llm_router
 
 #=================== binding output structure ====================:
 llm_grade_document_prompt = ChatPromptTemplate.from_messages(
     [
-        ("system", "Bạn là một chuyên gia đánh giá độ liên của tài câu trả lời được cung cấp với câu hỏi của người dùng.\n"
-        "Nếu câu hỏi liên quan về mặt ngữ nghĩa với câu trả lời được cung cấp, đánh giá là có liên quan. Trong trường hợp khác đánh giá là không liên quan.\n"
-        "Cho điểm số ở dạng Binary là 'yes' hoặc 'no'"),
-        ("human", "Respone: \n\n {document} \n\n User question: {question}")
+        (
+            "system",
+            "You are an expert evaluator responsible for assessing whether the provided answer is semantically relevant to the user's question.\n"
+            "If the answer is semantically related to the question, respond with a binary score of 'yes'.\n"
+            "If the answer is not semantically related, respond with 'no'.\n"
+            "Only return the binary score."
+        ),
+        (
+            "human",
+            "Response:\n\n{document}\n\nUser question:\n{question}"
+        )
     ]
 )
+
+
 llm_grade_document_query = llm.with_structured_output(GradeRespone)
 grade_answer_query_chain = llm_grade_document_prompt | llm_grade_document_query
 
@@ -127,22 +153,30 @@ class GraphState(TypedDict):
 
 #======================= Define node ==============================
 def llm_generation(state):
+    print("--->>>> LLM GENERATION NODE ---")
     question = state["question"]
     generation = llm_chain.invoke({"question": question})
     return {"generation": generation}
 
 
 def rag_retrival(state):
+    print("--->>>> RAG RETRIVAL NODE ---")
     question = state["question"]
     document_retrievaled = fuse_retrival_rerank(question, None, None,\
                                                  vectorstore, bm25_retriever, 5, 0.99, is_ranking=False)
     
+    # print(question)
+    # print(document_retrievaled)
+
+    context_chunks = ""
     for i, chunk in enumerate(document_retrievaled):
       append_context =  chunk["metadata"].get("full_context","")
       context_chunks +=f'[chunk {i+1}]\n{chunk["document"]}\n{append_context}'
       context_chunks +="\n\n -------------\n\n"
       if i+1 == 5:
           break 
+    
+    print("context_chunks:\n", context_chunks)
     document_context = Document(page_content=context_chunks)
     return {"documents": document_context, "tool": "rag_retrival"}
     
@@ -158,29 +192,32 @@ def web_search(state):
         state (dict): Updates documents key with appended web results
     """
 
-    print("---WEB SEARCH---")
+    print("--->>>> WEB SEARCH NODE ---")
     question = state["question"]
 
     # Web search
     docs = web_search_tool.invoke({"query": question})
-    web_results = "\n".join([d["content"] for d in docs])
+    # print("web search result:\n",docs)
+    web_results = "\n\n------------------------------\n\n".join([d["content"] for d in docs])
     web_results = Document(page_content=web_results)
     return {"documents": web_results, "tool": "web_search"}
 
 
 
 def rag_generation(state):
+    print("--->>>> RAG_GENERATION NODE ---")
     question = state["question"]
     context_chunks = state["documents"]
-    prompt_RAG = rag_chain.invoke({"context": context_chunks, "question":question})
-    return {"generation": prompt_RAG, "question": question}
+    result_RAG = rag_chain.invoke({"context": context_chunks, "question":question})
+    # print("result_RAG:\n", result_RAG)
+    return {"generation": result_RAG, "question": question}
 
 
 #=========================== define edge ==============================
 
 def route_question(state):
     question = state["question"]
-    source = llm_router.invoke({"question": question})
+    source = question_router.invoke({"question": question})
 
     # Fallback to LLM or raise error if no decision
     if "tool_calls" not in source.additional_kwargs:
@@ -193,41 +230,47 @@ def route_question(state):
     datasource = source.additional_kwargs["tool_calls"][0]["function"]["name"]
     if datasource == "WebSearch":
         # todo: The question doesn't need to tool call
+        print("---ROUTE WEB SEARCH---")
         return "web_search"
     elif datasource == "Retrieval":
         # to do: The question need to call call
+        print("---ROUTE RETRIEVAL---")
         return "rag_retrival"
     
+
 def grade_answer_query(state):
     question = state["question"]
     answer = state["generation"]
     grade = grade_answer_query_chain.invoke({"document": answer, "question": question})
-    if grade == "yes":
+    if grade.binary_score == "yes":
         #to do
+        print("---USEFULL RESPONE---")
         return "useful"
     else:
         #to do check tool use
-        if state["tool"] == "rag_retrival":  
+        if state["tool"] == "rag_retrival":
+          print("---NOT USEFULL RESPONE USE WEB_SEARCH---")  
           return "web_search"
         elif state["tool"] == "web_search":
+          print("---NOT USEFULL RESPONE USE RAG_RETRIEVAL---")  
           return "rag_retrival"    
     
 
 
 # Define the nodes
 workflow = StateGraph(GraphState)
-workflow.add_node(llm_generation)
-workflow.add_node(web_search)
-workflow.add_node(rag_retrival)
-workflow.add_node(rag_generation)
+workflow.add_node("llm_generation",llm_generation)
+workflow.add_node("web_search", web_search)
+workflow.add_node("rag_retrival", rag_retrival)
+workflow.add_node("rag_generation", rag_generation)
 
 # Define graph
 workflow.set_conditional_entry_point(
     route_question,
     {
-        "llm_generation": llm_generation,
-        "web_search": web_search,
-        "rag_retrival": rag_retrival
+        "llm_generation": "llm_generation",
+        "web_search": "web_search",
+        "rag_retrival": "rag_retrival",
     }
 )
 
@@ -245,3 +288,18 @@ workflow.add_conditional_edges(
 )
 workflow.add_edge("llm_generation", END)
 app = workflow.compile()
+
+
+# Execute
+inputs = {
+    "question": "Let's search this database, let's show me what is key point of paper?"
+}
+for output in app.stream(inputs):
+    for key, value in output.items():
+        # Node
+        pprint.pprint(f"Node '{key}':")
+        # Optional: print full state at each node
+    pprint.pprint("\n---\n")
+
+# Final generation
+pprint.pprint(value["generation"])
